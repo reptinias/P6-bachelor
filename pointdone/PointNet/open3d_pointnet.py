@@ -23,7 +23,7 @@ if torch.cuda.is_available():
     import torch.backends.cudnn as cudnn
 # General parameters
 NUM_POINTS = 10000
-MODEL_PATH = 'cls/cls_model_3.pth'
+MODEL_PATH = 'cls/cls_model_4.pth'
 DATA_FOLDER = 'Test_Dataset'
 
 # download dataset and pre-trained model
@@ -36,9 +36,11 @@ test_dataset_seg = PartDataset(
     npoints=NUM_POINTS)
 
 # Problem ontology
-classes_dict = {'I': 0, 'O': 1}
+classes_dict = {'O': 0, 'I': 1}
 # Create the classification network from pre-trained model
 classifier = PointNetCls(k=len(classes_dict.items()), num_points=NUM_POINTS)
+
+classifier.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
 
 classifier.eval()
 
@@ -61,7 +63,7 @@ def read_pointnet_colors(seg_labels):
 visualizer = o3.visualization.Visualizer()
 
 # Basic inference and visualization loop
-MAX_SAMPLES = 5
+MAX_SAMPLES = 20
 for samples in range(MAX_SAMPLES):
     random_index = randrange(len(test_dataset_seg))
     print('[Sample {} / {}]'.format(random_index, len(test_dataset_seg)))
