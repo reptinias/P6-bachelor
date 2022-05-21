@@ -1,5 +1,4 @@
 from __future__ import print_function
-from show3d_balls import *
 import argparse
 import os
 import random
@@ -14,17 +13,20 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.autograd import Variable
-from datasets import PartDataset
-from pointnet import PointNetDenseCls
+
+#from PointNet import show3d_balls
+from PointNet.datasets import PartDataset
+from PointNet.pointnet import PointNetDenseCls
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+#import PointNet.show3d_balls
 
 
 #showpoints(np.random.randn(2500,3), c1 = np.random.uniform(0,1,size = (2500)))
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--model', type=str, default = '',  help='model path')
+parser.add_argument('--model', type=str, default = 'seg/seg_model_2.pth',  help='model path')
 parser.add_argument('--idx', type=int, default = 0,   help='model index')
 
 
@@ -32,7 +34,7 @@ parser.add_argument('--idx', type=int, default = 0,   help='model index')
 opt = parser.parse_args()
 print (opt)
 
-d = PartDataset(root = 'Test_Dataset', class_choice = None, train = False)
+d = PartDataset(root = 'Test_Dataset', class_choice = None, train = True)
 
 idx = opt.idx
 
@@ -49,7 +51,7 @@ cmap = plt.cm.get_cmap("hsv", 10)
 cmap = np.array([cmap(i) for i in range(10)])[:,:3]
 gt = cmap[seg.numpy() - 1, :]
 
-classifier = PointNetDenseCls(k = 4)
+classifier = PointNetDenseCls(k = 2)
 classifier.load_state_dict(torch.load(opt.model))
 classifier.eval()
 
@@ -64,5 +66,5 @@ print(pred_choice)
 pred_color = cmap[pred_choice.numpy()[0], :]
 
 #print(pred_color.shape)
-showpoints(point_np, gt, pred_color)
+#show3d_balls.showpoints(point_np, gt, pred_color)
 

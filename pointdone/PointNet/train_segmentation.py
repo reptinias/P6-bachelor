@@ -23,7 +23,7 @@ if torch.cuda.is_available():
 parser = argparse.ArgumentParser()
 parser.add_argument('--batchSize', type=int, default=32, help='input batch size')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
-parser.add_argument('--nepoch', type=int, default=10, help='number of epochs to train for')
+parser.add_argument('--nepoch', type=int, default=5, help='number of epochs to train for')
 parser.add_argument('--outf', type=str, default='seg',  help='output folder')
 parser.add_argument('--model', type=str, default = '',  help='model path')
 
@@ -69,7 +69,7 @@ num_batch = len(dataset)/opt.batchSize
 for epoch in range(opt.nepoch):
     for i, data in enumerate(dataloader, 0):
         points, target = data
-        #points, target = Variable(points), Variable(target)
+        points, target = Variable(points), Variable(target)
         points = points.transpose(2,1)
         if torch.cuda.is_available():
             points, target = points.cuda(), target.cuda()
@@ -77,8 +77,8 @@ for epoch in range(opt.nepoch):
         classifier = classifier.train()
         pred, _ = classifier(points)
         pred = pred.view(-1, num_classes)
-        target = target.view(-1,1)[:,0]
-        #print(pred.size(), target.size())
+        target = target.view(-1,1)[:,0]-1
+        print(pred.size(), target.size())
         loss = F.nll_loss(pred, target)
         loss.backward()
         optimizer.step()
@@ -96,7 +96,7 @@ for epoch in range(opt.nepoch):
             classifier = classifier.eval()
             pred, _ = classifier(points)
             pred = pred.view(-1, num_classes)
-            target = target.view(-1,1)[:,0]
+            target = target.view(-1,1)[:,0]-1
 
             loss = F.nll_loss(pred, target)
             pred_choice = pred.data.max(1)[1]

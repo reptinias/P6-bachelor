@@ -6,12 +6,12 @@ import open3d
 class Visualizer:
     dataset_path = 'Dataset'
     map_label_to_rgb = {
-        1: [0, 255, 0],
-        2: [0, 0, 255],
-        3: [255, 0, 0],
-        4: [255, 0, 255],  # purple
-        5: [0, 255, 255],  # cyan
-        6: [255, 255, 0],  # yellow
+        0: [0, 255, 0],
+        1: [0, 0, 255],
+        2: [255, 0, 0],
+        3: [255, 0, 255],  # purple
+        4: [0, 255, 255],  # cyan
+        5: [255, 255, 0],  # yellow
     }
 
     def __init__(self):

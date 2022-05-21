@@ -91,7 +91,7 @@ class PointNetfeat(nn.Module):
             return torch.cat([x, pointfeat], 1), trans
 
 class PointNetCls(nn.Module):
-    def __init__(self, num_points = 2500, k = 2):
+    def __init__(self, num_points = 10000, k = 2):
         super(PointNetCls, self).__init__()
         self.num_points = num_points
         self.feat = PointNetfeat(num_points, global_feat=True)
@@ -109,7 +109,7 @@ class PointNetCls(nn.Module):
         return F.log_softmax(x, dim=-1), trans
 
 class PointNetDenseCls(nn.Module):
-    def __init__(self, num_points = 2500, k = 2):
+    def __init__(self, num_points = 10000, k = 2):
         super(PointNetDenseCls, self).__init__()
         self.num_points = num_points
         self.k = k

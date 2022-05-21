@@ -20,7 +20,7 @@ class PartDataset(data.Dataset):
     def __init__(self, root, npoints = 2500, classification = False, class_choice = None, train = True):
         self.npoints = npoints
         self.root = root
-        self.catfile = os.path.join(self.root, 'CatFile.txt')
+        self.catfile = os.path.join(self.root, 'catFile.txt')
         self.cat = {}
 
         self.classification = classification
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     d = PartDataset(root = 'Dataset', class_choice = None)
     #print(len(d))
     ps, seg = d[0]
-    #print(ps.size(), ps.type(), seg.size(),seg.type())
+    print(ps.size(), ps.type(), seg.size(),seg.type())
 
     d = PartDataset(root = 'Dataset', classification = True)
     #print(len(d))

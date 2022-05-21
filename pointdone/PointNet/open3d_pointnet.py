@@ -12,8 +12,9 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.autograd import Variable
-from datasets import PartDataset
-from pointnet import PointNetCls
+from PointNet.datasets import PartDataset
+from PointNet.pointnet import PointNetCls
+from PointNet.pointnet import PointNetDenseCls
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import open3d as o3
@@ -23,8 +24,9 @@ if torch.cuda.is_available():
     import torch.backends.cudnn as cudnn
 # General parameters
 NUM_POINTS = 10000
-MODEL_PATH = 'cls/cls_model_4.pth'
-DATA_FOLDER = 'Test_Dataset'
+MODEL_PATH = 'cls/cls_model_2.pth'
+DATA_FOLDER = 'Dataset'
+
 
 # download dataset and pre-trained model
 #download.download_contents()
@@ -36,13 +38,17 @@ test_dataset_seg = PartDataset(
     npoints=NUM_POINTS)
 
 # Problem ontology
-classes_dict = {'O': 0, 'I': 1}
+classes_dict = {'I': 0, 'O': 1}
 # Create the classification network from pre-trained model
 classifier = PointNetCls(k=len(classes_dict.items()), num_points=NUM_POINTS)
+segmentation = PointNetDenseCls(num_points = NUM_POINTS, )
 
 classifier.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
+segmentation.load_state_dict(torch.load('seg/seg_model_2.pth', map_location='cpu'))
 
 classifier.eval()
+segmentation.eval()
+
 
 
 # Simple point cloud coloring mapping
@@ -61,6 +67,8 @@ def read_pointnet_colors(seg_labels):
 
 # Three.js based visualizer
 visualizer = o3.visualization.Visualizer()
+predVisualizer = o3.visualization.Visualizer()
+
 
 # Basic inference and visualization loop
 MAX_SAMPLES = 20
@@ -70,6 +78,7 @@ for samples in range(MAX_SAMPLES):
 
     # clean visualization
     visualizer.clear_geometries()
+    predVisualizer.clear_geometries()
     clear_output()
 
     # get next sample
@@ -83,6 +92,8 @@ for samples in range(MAX_SAMPLES):
 
     cloud.points = o3.utility.Vector3dVector(point_set)
     cloud.colors = o3.utility.Vector3dVector(read_pointnet_colors(seg.numpy()))
+    #print(seg.numpy().shape)
+
 
     # perform inference in GPU
     points = Variable(point_set.unsqueeze(0))
@@ -90,15 +101,41 @@ for samples in range(MAX_SAMPLES):
     if torch.cuda.is_available():
         points = points.cuda()
     pred_logsoft, _ = classifier(points)
+    #print(pred_logsoft)
+    segpred, _ = segmentation(points)    #print(segpred)
+
+    segpred_choice = segpred.data.max(2)[1]
+    segpred_cpu = segpred_choice.data.cpu().numpy().squeeze()
+
+    predCloud = o3.geometry.PointCloud()
+    predCloud.points = o3.utility.Vector3dVector(point_set)
+    predCloud.colors = o3.utility.Vector3dVector(read_pointnet_colors(segpred_cpu))
 
     # move data back to cpu for visualization
     pred_logsoft_cpu = pred_logsoft.data.cpu().numpy().squeeze()
     pred_soft_cpu = np.exp(pred_logsoft_cpu)
     pred_class = np.argmax(pred_soft_cpu)
 
+    #print(segpred_cpu)
+    #segpred_soft_cpu = np.exp(segpred_cpu)
+    #print(segpred_soft_cpu)
+    #pred_seg = np.argmax(segpred_soft_cpu, axis= 1)
+    #pred_seg= np.transpose(pred_seg)
+
+    #f = open("testseg/test" + ".seg", "x")
+    #for i in pred_seg:
+     #   f.write(str(i)+"\n")
+
+    #f.close()
+
+   # print(pred_seg)
+
     # let's visualize the input sample
     visualizer.add_geometry(cloud)
     visualizer.create_window()
+
+    predVisualizer.add_geometry(predCloud)
+    predVisualizer.create_window()
 
     # Visualize probabilities
     plt.xticks(list(classes_dict.values()), list(classes_dict.keys()), rotation=90)

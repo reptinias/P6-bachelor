@@ -96,10 +96,10 @@ def beamIso(pointCloud, skipIndex=None):
 
             for i in pcdist:
                 if i > 20:
-                    f.write(str(0) + "\n")
+                    f.write(str(1) + "\n")
                     # beam
                 else:
-                    f.write(str(1) + "\n")
+                    f.write(str(2) + "\n")
                     # patch
 
             f.close()
