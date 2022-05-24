@@ -62,9 +62,5 @@ pred, _ = classifier(point)
 pred_choice = pred.data.max(2)[1]
 print(pred_choice)
 
-#print(pred_choice.size())
 pred_color = cmap[pred_choice.numpy()[0], :]
-
-#print(pred_color.shape)
-#show3d_balls.showpoints(point_np, gt, pred_color)
 

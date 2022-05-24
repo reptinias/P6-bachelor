@@ -25,11 +25,9 @@ if torch.cuda.is_available():
 # General parameters
 NUM_POINTS = 10000
 MODEL_PATH = 'cls/cls_model_2.pth'
-DATA_FOLDER = 'Dataset'
+DATA_FOLDER = 'Test_Dataset'
 
 
-# download dataset and pre-trained model
-#download.download_contents()
 # Create dataset object
 test_dataset_seg = PartDataset(
     root=DATA_FOLDER,
@@ -87,12 +85,10 @@ for samples in range(MAX_SAMPLES):
     # create cloud for visualization
     cloud = o3.geometry.PointCloud()
 
-    ##### point_set might be using expontential values on first iteration which breaks the vizualization.
-    #####quick fix cast firts idx to string and check if it contains value "e" and then break loop and increment max_samples by 1
 
     cloud.points = o3.utility.Vector3dVector(point_set)
     cloud.colors = o3.utility.Vector3dVector(read_pointnet_colors(seg.numpy()))
-    #print(seg.numpy().shape)
+
 
 
     # perform inference in GPU
@@ -101,8 +97,8 @@ for samples in range(MAX_SAMPLES):
     if torch.cuda.is_available():
         points = points.cuda()
     pred_logsoft, _ = classifier(points)
-    #print(pred_logsoft)
-    segpred, _ = segmentation(points)    #print(segpred)
+
+    segpred, _ = segmentation(points)
 
     segpred_choice = segpred.data.max(2)[1]
     segpred_cpu = segpred_choice.data.cpu().numpy().squeeze()
@@ -116,19 +112,7 @@ for samples in range(MAX_SAMPLES):
     pred_soft_cpu = np.exp(pred_logsoft_cpu)
     pred_class = np.argmax(pred_soft_cpu)
 
-    #print(segpred_cpu)
-    #segpred_soft_cpu = np.exp(segpred_cpu)
-    #print(segpred_soft_cpu)
-    #pred_seg = np.argmax(segpred_soft_cpu, axis= 1)
-    #pred_seg= np.transpose(pred_seg)
 
-    #f = open("testseg/test" + ".seg", "x")
-    #for i in pred_seg:
-     #   f.write(str(i)+"\n")
-
-    #f.close()
-
-   # print(pred_seg)
 
     # let's visualize the input sample
     visualizer.add_geometry(cloud)

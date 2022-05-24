@@ -15,7 +15,6 @@ def groundTruth(skipIndex=None):
     os.mkdir("GroundTruthPCD")
     os.mkdir("GroundTruthPTS")
 
-    print(AllFiles)
     # Loop through all folders
     for i, folder in enumerate(AllFiles):
         if skipIndex >= 50:
@@ -106,7 +105,7 @@ def beamIso(pointCloud, skipIndex=None):
             ind = np.where(pcdist > 20)[0]
             disPCD = pcd.select_by_index(ind)
 
-            print("Jeg er her")
+
             #lapDist = np.asarray(pcd.compute_point_cloud_distace(CadPCD))
             index = np.where(pcdist < 10)[0]
             lapPCD = pcd.select_by_index(index)
@@ -114,7 +113,7 @@ def beamIso(pointCloud, skipIndex=None):
             skipIndex += 1
 
         except:
-            print("jeg ved ikke hvad jeg laver")
+
             # load in a point cloud
             pcd = np.asarray(o3d.io.read_point_cloud("GroundTruthPCD/" + str(folder)).points)
             f = open("SegFiles/" + str(os.path.splitext(folder)[0]) + ".seg", "x")
